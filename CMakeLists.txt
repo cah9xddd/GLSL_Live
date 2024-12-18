@@ -95,10 +95,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 find_package(glad CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad::glad)
 
-#--- FreeImage connecting ---#
-find_package(freeimage CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE freeimage::FreeImage freeimage::FreeImagePlus)
-
 #--- GLM connecting ---#
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm-header-only)
@@ -113,7 +109,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE>)
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_INFO>)
 
-#--- Spdlog connecting ---#
+#--- Magic Enum connecting ---#
 find_package(magic_enum CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE magic_enum::magic_enum)
 
@@ -134,4 +130,3 @@ endfunction()
 
 #--- Copy the assets and shaders to the output directory ---#
 copy_directory_to_output_directory(assets)
-copy_directory_to_output_directory(shaders)
