@@ -1,0 +1,5 @@
+build/
+.github/
+.vscode/
+
+.project_standards.md

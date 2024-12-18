@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "dependencies": [
+    "glad",
+    "glfw3",
+    "glm",
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding",
+        "opengl3-binding"
+      ]
+    },
+    "magic-enum",
+    "opengl",
+    "spdlog"
+  ]
+}
