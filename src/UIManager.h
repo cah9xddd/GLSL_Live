@@ -49,4 +49,8 @@ private:
     std::string vertex_shader_source;
 
     static bool is_ui_visible;
+
+
+    // Helpers
+    ImVec4 text_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 };

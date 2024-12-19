@@ -50,18 +50,30 @@ void main()
 
     fragment_shader_source = R"(#version 460 core
 
-in vec2 fragCoord;
-in vec2 iResolution;
+in vec2 fragCoord;          // Fragment Coordinate from 0 to iResolutin x or y
+in vec2 iResolution;        // Window resolution
 uniform float iTime;        // Elapsed time in seconds
-uniform float iTimeDelta;  // Frame time delta
+uniform float iTimeDelta;   // Frame time delta
 uniform int iFrame;         // Current frame number
 uniform vec4 iMouse;        // Mouse input (position and click)
 
 out vec4 fragColor;
 
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord)
+{
+    vec2 uv = fragCoord.xy / iResolution.xy;
+
+    // Time varying pixel color
+    vec3 col = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4));
+
+    // Output to screen
+    fragColor = vec4(col, 1.0);
+}
+
 void main()
 {
-	fragColor = vec4( sin(fragCoord.x) , 0.f,0.f,0.f);
+    mainImage(fragColor, fragCoord);
 })";
 
     fragment_shader_source.resize(1024 * 100);
@@ -88,9 +100,14 @@ void UIManager::RenderFrame() noexcept
     glfwGetWindowSize(window, &width, &height);  // Get window size
     ImGui::SetNextWindowSize(ImVec2((float)width, (float)height));
 
-    ImGui::SetNextWindowBgAlpha(0.5f);
+    ImGui::SetNextWindowBgAlpha(0.25f);
 
-    ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+    ImGui::PushStyleColor(ImGuiCol_Text, text_color);
+
+    ImGui::Begin(
+        "Editor",
+        nullptr,
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_HorizontalScrollbar);
 
     // Tab 1
     if (ImGui::BeginTabBar("TabBar"))
@@ -104,25 +121,27 @@ void UIManager::RenderFrame() noexcept
         if (ImGui::BeginTabItem("Fragment Shader"))
         {
             // we wanted childs to be transparent
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.3f, 0.75f));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.3f, 0.0f));
 
             // get parent window size
             ImVec2 parent_window_size = ImGui::GetWindowSize();
 
             // here we wanna create multitext input  for fragment shader
-            ImGui::InputTextMultiline("Fragment Shader",
+            ImGui::InputTextMultiline(" ",
                                       fragment_shader_source.data(),
                                       fragment_shader_source.size(),
-                                      ImVec2(-FLT_MIN, parent_window_size.y),
+                                      ImVec2(-FLT_MIN, parent_window_size.y * 0.90f),
                                       ImGuiInputTextFlags_AllowTabInput);
 
             ImGui::PopStyleColor();
 
             ImGui::EndTabItem();
         }
-
         if (ImGui::BeginTabItem("Output"))
         {
+            if (ImGui::ColorEdit3("Text Color", (float*)&text_color)) {}
+
+            // Display text with the selected color
             ImGui::Text("Hello from Output");
 
             ImGui::EndTabItem();
@@ -130,6 +149,9 @@ void UIManager::RenderFrame() noexcept
 
         ImGui::EndTabBar();
     }
+
+    // Pop the style change to revert to the previous style settings
+    ImGui::PopStyleColor();
 
     ImGui::End();
 
