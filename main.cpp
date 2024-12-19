@@ -87,6 +87,7 @@ void HandleInput(GLFWwindow* window)
 {
 
     static bool space_key_pressed = false;
+    static bool h_key_pressed     = false;
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
         && glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
@@ -102,9 +103,20 @@ void HandleInput(GLFWwindow* window)
             space_key_pressed = true;               // Mark as pressed
         }
     }
+    else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
+             && glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+    {
+        if (!h_key_pressed)  // Check if H was not already pressed
+        {
+            UIManager::SetUIVisibility(!UIManager::GetUIVisibility());  // Toggle the flag
+            h_key_pressed = true;                                       // Mark as pressed
+        }
+    }
+
     else
     {
         space_key_pressed = false;  // Reset the key state when key is released
+        h_key_pressed     = false;  // Reset the key state when key is released
     }
 }
 
@@ -131,6 +143,7 @@ int main()
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_SAMPLES, 4);  // 4x MSAA
 
 #ifdef RELEASE
         // Gets the screen resolution of the primary monitor
@@ -223,7 +236,7 @@ int main()
         float              delta_time       = 0.0f;
 
         // turn off vsync for now
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
 
         int32_t frame = 0;
         // Render loop
