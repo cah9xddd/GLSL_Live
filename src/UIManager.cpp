@@ -137,7 +137,7 @@ void UIManager::RenderFrame() noexcept
 
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Output"))
+        if (ImGui::BeginTabItem("Settings"))
         {
             if (ImGui::ColorEdit3("Text Color", (float*)&text_color)) {}
 
