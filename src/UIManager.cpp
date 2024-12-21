@@ -155,10 +155,6 @@ void UIManager::RenderFrame() noexcept
 
     ImGui::End();
 
-
-    static bool show_demo_window = true;
-    if (show_demo_window) { ImGui::ShowDemoWindow(&show_demo_window); }
-
     ImGui::Render();
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
