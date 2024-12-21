@@ -1,18 +1,19 @@
 # GLSL_Live
 
-This project enables live editing and rendering of GLSL fragment shaders, inspired by [ShaderToy](https://www.shadertoy.com)
+This project enables live editing and rendering of GLSL fragment shaders, inspired by [ShaderToy](https://www.shadertoy.com).
 
-It was created as a learning tool to explore [The book of Shaders](https://thebookofshaders.com).  
+It was created as a learning tool to explore [The Book of Shaders](https://thebookofshaders.com).
 
 This application allows real-time interaction with GLSL shaders, providing an easy-to-use interface for testing and modifying shader code on the fly.
 
 ## Features
 - Real-time fragment shader editing.
 - Interactive GLSL shader rendering.
+- Uniforms passed with the same name as on ShaderToy, so you can easily copy and paste to learn.
 
 ## Requirements
 - CMake
-- vcpkg (for dependencies,ensure it's installed and added to the PATH)
+- vcpkg (for managing dependencies, ensure it is installed and added to your PATH)
 
 ## Building the Project
 
@@ -21,7 +22,7 @@ This application allows real-time interaction with GLSL shaders, providing an ea
    git clone https://github.com/cah9xddd/GLSL_Live.git
    cd GLSL_Live
    ```
-2. **Build the project (ensure u have vcpkg and its added to the PATH).**   
+2. **Build the project (ensure you have vcpkg and its added to the PATH).**   
    ```bash   
    cmake -B build
    cmake --build build --config Release
