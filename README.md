@@ -1,5 +1,5 @@
 # GLSL_Live
-[![Build Status](https://github.com/cah9xddd/GLSL_Live/actions/workflows/server.yml/badge.svg)]([https://github.com//cah9xddd/GLSL_Live/actions/workflows/cmake-single-platform_windows.yml])
+[![Build Status](https://github.com/cah9xddd/GLSL_Live/actions/workflows/cmake-single-platform_windows.yml/badge.svg)]([https://github.com//cah9xddd/GLSL_Live/actions/workflows/cmake-single-platform_windows.yml])
 
 This project enables live editing and rendering of GLSL fragment shaders, inspired by [ShaderToy](https://www.shadertoy.com).
 
