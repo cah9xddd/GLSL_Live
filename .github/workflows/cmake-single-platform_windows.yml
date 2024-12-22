@@ -1,0 +1,34 @@
+name: C++ CMake Build
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    # Step 1: Checkout the code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Install dependencies using vcpkg
+    - name: Install Dependencies
+      run: |
+        choco install cmake ninja visualstudio2019buildtools
+        # Install other dependencies via vcpkg
+        git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+        echo "${{ github.workspace }}\vcpkg" >> $env:GITHUB_PATH
+
+    # Step 4: Configure the project
+    - name: Configure
+      run: |
+        cmake -B build
+        
+    # Step 5: Build the project
+    - name: Build
+      run: |
+        cmake --build build --config Release
