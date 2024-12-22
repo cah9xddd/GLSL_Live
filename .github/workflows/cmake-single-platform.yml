@@ -18,7 +18,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ ninja-build
+        sudo apt-get install -y cmake g++ ninja-build libxinerama-dev libxcursor-dev xorg-dev libglu1-mesa-dev pkg-config
 
     # Step 3: Setup vcpkg
     - name: Setup vcpkg
