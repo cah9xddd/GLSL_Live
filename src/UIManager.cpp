@@ -112,6 +112,13 @@ void UIManager::RenderFrame() noexcept
     // Tab 1
     if (ImGui::BeginTabBar("TabBar"))
     {
+        if (ImGui::BeginTabItem("Hotkeys"))
+        {
+            ImGui::Text("Ctrl + Q - Quit");
+            ImGui::Text("Ctrl + H - Hide UI");
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Vertex Shader"))
         {
             ImGui::Text(vertex_shader_source.c_str());
