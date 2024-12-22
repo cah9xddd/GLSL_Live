@@ -23,7 +23,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON) 
 
 #--- Project must be afer all vcpkg setup ---#
-project(GLSL_LIVE VERSION 1.0.0)
+project(GLSL_LIVE VERSION 1.1.0)
 
 #--- Platform setup, you can modify if needed ---#
 if(WIN32)
