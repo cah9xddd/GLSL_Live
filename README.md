@@ -10,7 +10,7 @@ This application allows real-time interaction with GLSL shaders, providing an ea
 ## Features
 - Real-time fragment shader editing.
 - Interactive GLSL shader rendering.
-- Uniforms passed with the same name as on ShaderToy, so you can easily copy and paste to learn.
+- Uniforms passed with the same names as on ShaderToy, so you can easily copy and paste to learn.
 
 ## Requirements
 - CMake
