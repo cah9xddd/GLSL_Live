@@ -23,7 +23,7 @@ jobs:
         .\vcpkg\bootstrap-vcpkg.bat
         echo "${{ github.workspace }}\vcpkg" >> $env:GITHUB_PATH
 
-    # Step 4: Configure the project
+    # Step 4: Generate build files
     - name: Configure
       run: |
         cmake -B build
