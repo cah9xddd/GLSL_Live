@@ -25,9 +25,10 @@ jobs:
       run: |
         git clone https://github.com/microsoft/vcpkg.git
         ./vcpkg/bootstrap-vcpkg.sh
+        echo "${{ github.workspace }}/vcpkg" >> $GITHUB_PATH
 
     # Step 4: Configure and build the project
     - name: Configure and Build
       run: |
-        cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -G Ninja
+        cmake -B build
         cmake --build build
