@@ -1,4 +1,5 @@
 # GLSL_Live
+[![Build Status](https://github.com/cah9xddd/GLSL_Live/actions/workflows/server.yml/badge.svg)](https://github.com//cah9xddd/GLSL_Live/actions/workflows/server.yml)
 
 This project enables live editing and rendering of GLSL fragment shaders, inspired by [ShaderToy](https://www.shadertoy.com).
 
