@@ -29,9 +29,9 @@ This application allows real-time interaction with GLSL shaders, providing an ea
    cmake --build build --config Release
    ```
 3. **Go the bin/platform/build_type/project_name/ and run exe. Example:**
-  ```bash
-  cd ./build/bin/Win64/Release/GLSL_Live.v.1.0.0/
-  ./GLSL_Live.exe
-  ```
+   ```bash
+   cd ./build/bin/Win64/Release/GLSL_Live.v.1.0.0/
+   ./GLSL_Live.exe
+   ```
 
 
