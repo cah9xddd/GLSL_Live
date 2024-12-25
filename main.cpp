@@ -57,21 +57,6 @@ float cursor_y = 0.0f;
 
 bool is_scene_playing = true;
 
-bool CheckLinkingErrors(unsigned int id)
-{
-    // Check for linking errors
-    GLint success;
-    glGetProgramiv(id, GL_LINK_STATUS, &success);
-    if (!success)
-    {
-        char info_log[512];
-        glGetProgramInfoLog(id, 512, nullptr, info_log);
-        LOG_WARN("Shader program {} linking error: {}", id, info_log);
-        return false;
-    }
-    return true;
-}
-
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -239,11 +224,12 @@ int main()
         glfwSwapInterval(0);
 
         int32_t frame = 0;
+
         // Render loop
         while (!glfwWindowShouldClose(window))
         {
             // Get current time
-            float current_time = glfwGetTime();
+            current_time = glfwGetTime();
 
             // Calculate delta time (time elapsed since last frame)
             delta_time = current_time - last_frame;
