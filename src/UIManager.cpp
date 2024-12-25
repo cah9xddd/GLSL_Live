@@ -1,4 +1,5 @@
 #include "UIManager.h"
+#include "Utils.h"
 
 bool UIManager::is_ui_visible = true;
 
@@ -28,53 +29,8 @@ UIManager::UIManager(GLFWwindow* window_) noexcept : window(window_)
     style.IndentSpacing      = 30.f;
     style.ScrollbarSize      = 15.f;
 
-    vertex_shader_source = R"(#version 460 core
-
-layout (location = 0) in vec3 Pos;  // Input vertex position
-
-uniform vec2 in_resolution;   // Viewport resolution (in pixels)
-
-out vec2 fragCoord;
-out vec2 iResolution;
-
-void main()
-{
-    gl_Position = vec4(Pos, 1.0);
-
-    fragCoord.x = in_resolution.x * (gl_Position.x + 1.0) / 2.0;
-    fragCoord.y = in_resolution.y * (gl_Position.y + 1.0) / 2.0;
-
-    iResolution = in_resolution;
-
-})";
-
-    fragment_shader_source = R"(#version 460 core
-
-in vec2 fragCoord;          // Fragment Coordinate from 0 to iResolutin x or y
-in vec2 iResolution;        // Window resolution
-uniform float iTime;        // Elapsed time in seconds
-uniform float iTimeDelta;   // Frame time delta
-uniform int iFrame;         // Current frame number
-uniform vec4 iMouse;        // Mouse input (position and click)
-
-out vec4 fragColor;
-
-
-void mainImage(out vec4 fragColor, in vec2 fragCoord)
-{
-    vec2 uv = fragCoord.xy / iResolution.xy;
-
-    // Time varying pixel color
-    vec3 col = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4));
-
-    // Output to screen
-    fragColor = vec4(col, 1.0);
-}
-
-void main()
-{
-    mainImage(fragColor, fragCoord);
-})";
+    vertex_shader_source   = ReadTextFromFile("shaders/default/default_vertex.glsl");
+    fragment_shader_source = ReadTextFromFile("shaders/default/default_fragment.glsl");
 
     fragment_shader_source.resize(1024 * 100);
 }
@@ -104,10 +60,10 @@ void UIManager::RenderFrame() noexcept
 
     ImGui::PushStyleColor(ImGuiCol_Text, text_color);
 
-    ImGui::Begin(
-        "Editor",
-        nullptr,
-        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_HorizontalScrollbar);
+    ImGui::Begin("Editor",
+                 nullptr,
+                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+                     | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar);
 
     // Tab 1
     if (ImGui::BeginTabBar("TabBar"))
@@ -115,7 +71,7 @@ void UIManager::RenderFrame() noexcept
         if (ImGui::BeginTabItem("Hotkeys"))
         {
             ImGui::Text("Ctrl + Q - Quit");
-            ImGui::Text("Ctrl + H - Hide UI");
+            ImGui::Text("Ctrl + H - Hide/Show UI");
             ImGui::EndTabItem();
         }
 
@@ -127,13 +83,10 @@ void UIManager::RenderFrame() noexcept
 
         if (ImGui::BeginTabItem("Fragment Shader"))
         {
-            // we wanted childs to be transparent
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.3f, 0.0f));
 
-            // get parent window size
             ImVec2 parent_window_size = ImGui::GetWindowSize();
 
-            // here we wanna create multitext input  for fragment shader
             ImGui::InputTextMultiline(" ",
                                       fragment_shader_source.data(),
                                       fragment_shader_source.size(),
@@ -147,9 +100,6 @@ void UIManager::RenderFrame() noexcept
         if (ImGui::BeginTabItem("Settings"))
         {
             if (ImGui::ColorEdit3("Text Color", (float*)&text_color)) {}
-
-            // Display text with the selected color
-            ImGui::Text("Hello from Output");
 
             ImGui::EndTabItem();
         }
