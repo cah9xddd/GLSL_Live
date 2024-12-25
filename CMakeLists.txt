@@ -130,3 +130,4 @@ endfunction()
 
 #--- Copy the assets and shaders to the output directory ---#
 copy_directory_to_output_directory(assets)
+copy_directory_to_output_directory(shaders)
