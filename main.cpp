@@ -239,9 +239,6 @@ int main()
 
             // LOG_INFO("FPS: {}", 1.0 / delta_time);
 
-
-            ui_manager.PrepareFrame();
-
             HandleInput(window);
 
 
