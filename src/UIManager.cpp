@@ -39,8 +39,6 @@ UIManager::~UIManager() noexcept { Shutdown(); }
 
 void UIManager::PrepareFrame() const noexcept
 {
-    if (!is_ui_visible) { return; }
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -49,6 +47,8 @@ void UIManager::PrepareFrame() const noexcept
 void UIManager::RenderFrame() noexcept
 {
     if (!is_ui_visible) { return; }
+
+    PrepareFrame();
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
 
@@ -63,9 +63,35 @@ void UIManager::RenderFrame() noexcept
     ImGui::Begin("Editor",
                  nullptr,
                  ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
-                     | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar);
+                     | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar
+                     | ImGuiWindowFlags_NoTitleBar);
 
-    // Tab 1
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Save"))
+            {
+                WriteTextToFile("shaders/default/default_fragment.glsl", fragment_shader_source);
+                WriteTextToFile("shaders/default/default_vertex.glsl", vertex_shader_source);
+            }
+
+            if (ImGui::MenuItem("Quit", "Ctrl+Q")) { glfwSetWindowShouldClose(window, GLFW_TRUE); }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("View"))
+        {
+            if (ImGui::MenuItem("Hide/Show UI", "Ctrl+H")) { is_ui_visible = !is_ui_visible; }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMenuBar();
+    }
+
+
     if (ImGui::BeginTabBar("TabBar"))
     {
         if (ImGui::BeginTabItem("Hotkeys"))
