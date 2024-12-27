@@ -171,3 +171,15 @@ bool WriteTextToFile(std::string_view file_path_, std::string_view text_) noexce
 
     return true;
 }
+
+/**
+ * @brief Function which returns the path to the application
+ *
+ * @return Path to the application
+ */
+[[nodiscard]] std::string GetApplicationPath()
+{
+    std::string path = std::filesystem::current_path().string();
+    std::replace(path.begin(), path.end(), '\\', '/');
+    return path;
+}
