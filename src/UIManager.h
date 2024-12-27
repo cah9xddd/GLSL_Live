@@ -42,6 +42,8 @@ private:
      */
     void Shutdown() noexcept;
 
+    void DrawSavePopup() noexcept;
+
 private:
     GLFWwindow* window;
 
@@ -52,5 +54,6 @@ private:
 
 
     // Helpers
-    ImVec4 text_color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    ImVec4 text_color      = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    bool   show_save_popup = false;
 };
