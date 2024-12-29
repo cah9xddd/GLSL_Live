@@ -1,5 +1,7 @@
 #include "ShaderProgram.h"
 
+ShaderProgram::ShaderProgram() noexcept : id(0) {}
+
 ShaderProgram::ShaderProgram(Shader& vertex_, Shader& fragment_) noexcept : id(0)
 {
     id = glCreateProgram();
@@ -15,6 +17,26 @@ ShaderProgram::ShaderProgram(Shader& vertex_, Shader& fragment_) noexcept : id(0
             id = 0;
         }
     }
+}
+
+ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept
+{
+    id               = other.id;
+    attached_shaders = std::move(other.attached_shaders);
+    other.id         = 0;
+}
+
+ShaderProgram& ShaderProgram::operator= (ShaderProgram&& other) noexcept
+{
+    if (this != &other)
+    {
+        DeleteProgram();
+
+        id               = other.id;
+        attached_shaders = std::move(other.attached_shaders);
+        other.id         = 0;
+    }
+    return *this;
 }
 
 ShaderProgram::~ShaderProgram() { DeleteProgram(); }

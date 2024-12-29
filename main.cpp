@@ -1,7 +1,7 @@
 #include "PCH.h"
 
 #include "UIManager.h"
-#include "ShaderProgram.h"
+#include "ShaderManager.h"
 
 void SetupAsyncLogger()
 {
@@ -68,7 +68,7 @@ void MouseCursorCallback(GLFWwindow* window, double xpos, double ypos)
     cursor_y = ypos;
 }
 
-void HandleInput(GLFWwindow* window)
+void HandleInput(GLFWwindow* window, ShaderManager& shader_manager)
 {
 
     static bool space_key_pressed = false;
@@ -76,6 +76,7 @@ void HandleInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
         && glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     {
+        shader_manager.SaveFragmentShaderToPath("shaders/latest_fragment.glsl");
         glfwSetWindowShouldClose(window, true);
     }
 
@@ -107,8 +108,7 @@ void HandleInput(GLFWwindow* window)
 
 int main()
 {
-    // Setup the async logger
-    SetupAsyncLogger();
+    SetupAsyncLogger();  // Setup the async logger
 
     glfwSetErrorCallback(
         [](int error, const char* description)
@@ -116,13 +116,12 @@ int main()
             LOG_CRITICAL("GLFW Error {}: {}", error, description);
         });
 
-    // Initialize GLFW
-    if (!glfwInit())
+    if (!glfwInit())  // Initialize GLFW
     {
         LOG_CRITICAL("Failed to initialize GLFW");
         return -1;
     }
-    {
+    {  // Create an scope for correct destruction of the resources
 
         // Set GLFW options
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -154,28 +153,27 @@ int main()
             return -1;
         }
 
-        // Make the window's context current
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(window);  // Make the window's context current
 
-        // Load OpenGL using GLAD
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))  // Load OpenGL using GLAD
         {
             LOG_CRITICAL("Failed to initialize GLAD");
             return -1;
         }
 
-        // Set the viewport
         glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        // Register the framebuffer size callback
-        glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-        glfwSetCursorPosCallback(window, MouseCursorCallback);
 
-        UIManager ui_manager(window);
+        glfwSetFramebufferSizeCallback(
+            window,
+            FramebufferSizeCallback);  // Register the framebuffer size callback
+
+        glfwSetCursorPosCallback(window,
+                                 MouseCursorCallback);  // Register the mouse cursor callback
+
 
         // Define rectangle vertices
         float vertices[] = {
-            // Positions
             1.f,  1.f,  0.0f,  // Top right
             1.f,  -1.f, 0.0f,  // Bottom right
             -1.f, -1.f, 0.0f,  // Bottom left
@@ -209,10 +207,6 @@ int main()
         // Unbind the VAO
         glBindVertexArray(0);
 
-        Shader vertex_shader;
-        vertex_shader.CompileFromText(ui_manager.GetVertexShaderSource(), ShaderType::VERTEX);
-
-        // Initialize previous time for delta time calculation
         std::vector<float> frame_times;
         float              last_frame       = 0.0f;
         constexpr float    FPS_LOG_INTERVAL = 1.0f;  // Log every 1 second
@@ -220,27 +214,28 @@ int main()
         float              current_time     = 0.0f;
         float              delta_time       = 0.0f;
 
-        // turn off vsync for now
-        glfwSwapInterval(0);
+
+        glfwSwapInterval(0);  // turn off vsync for now
 
         int32_t frame = 0;
 
-        // Render loop
-        while (!glfwWindowShouldClose(window))
+        ShaderManager shader_manager;
+
+        UIManager ui_manager(window, shader_manager);
+
+        auto& fragment_shader = shader_manager.GetFragmentShader();
+        auto& vertex_shader   = shader_manager.GetVertexShader();
+
+        while (!glfwWindowShouldClose(window))  // Render loop
         {
-            // Get current time
-            current_time = glfwGetTime();
+            current_time = glfwGetTime();  // Get current time
 
-            // Calculate delta time (time elapsed since last frame)
-            delta_time = current_time - last_frame;
+            delta_time =
+                current_time - last_frame;  // Calculate delta time (time elapsed since last frame)
 
-            // Update previous_time for next frame
-            last_frame = current_time;
+            last_frame = current_time;  // Update previous_time for next frame
 
-            // LOG_INFO("FPS: {}", 1.0 / delta_time);
-
-            HandleInput(window);
-
+            HandleInput(window, shader_manager);
 
             // Rendering commands
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -249,15 +244,13 @@ int main()
             // Main logic
             if (is_scene_playing)
             {
-                Shader fragment_shader;
-                auto   fragment_shader_source = ui_manager.GetFragmentShaderSource();
-                bool   is_fragment_shader_good =
-                    fragment_shader.CompileFromText(fragment_shader_source, ShaderType::FRAGMENT);
+                fragment_shader.CompileFromCurrentCode(ShaderType::FRAGMENT);
 
-
-                if (is_fragment_shader_good)
+                if (fragment_shader.IsGood())
                 {
-                    ShaderProgram shader_program(vertex_shader, fragment_shader);
+                    auto& shader_program = shader_manager.GetShaderProgram();
+                    shader_program       = ShaderProgram(vertex_shader, fragment_shader);
+
                     shader_program.Use();
                     shader_program.SetUniform("in_resolution",
                                               glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -270,12 +263,13 @@ int main()
                     shader_program.SetUniform("iMouse",
                                               glm::vec4(normalized_x, normalized_y, 0.0f, 0.0f));
 
-
                     glBindVertexArray(VAO);
                     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+                    // here we wanna save the current frame and if on pause we just show latest
+                    // frame
                 }
             }
-
 
             ui_manager.RenderFrame();
 
@@ -323,13 +317,13 @@ int main()
             }
         }
 
-        vertex_shader.DeleteShader();
-
+        shader_manager.SaveFragmentShaderToPath("shaders/latest_fragment.glsl");
         // Clean up
         glDeleteVertexArrays(1, &VAO);
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
     }
+
 
     // Terminate GLFW
     glfwTerminate();
