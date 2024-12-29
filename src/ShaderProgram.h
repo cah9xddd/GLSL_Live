@@ -11,8 +11,15 @@ concept AllowedUniformType =
     || std::is_same_v<T, int> || std::is_same_v<T, float> || std::is_same_v<T, bool>;
 
 struct ShaderProgram {
+    explicit ShaderProgram() noexcept;
+    explicit ShaderProgram(Shader& vertex_, Shader& fragment_) noexcept;
 
-    ShaderProgram(Shader& vertex_, Shader& fragment_) noexcept;
+    explicit ShaderProgram(const ShaderProgram&)    = delete;
+    ShaderProgram& operator= (const ShaderProgram&) = delete;
+
+    explicit ShaderProgram(ShaderProgram&& other) noexcept;
+    ShaderProgram& operator= (ShaderProgram&& other) noexcept;
+
     ~ShaderProgram();
 
     void Use() noexcept;

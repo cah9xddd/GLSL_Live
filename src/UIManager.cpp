@@ -3,7 +3,9 @@
 
 bool UIManager::is_ui_visible = true;
 
-UIManager::UIManager(GLFWwindow* window_) noexcept : window(window_)
+UIManager::UIManager(GLFWwindow* window_, ShaderManager& shader_manager_) noexcept :
+    window(window_),
+    shader_manager(shader_manager_)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -17,7 +19,7 @@ UIManager::UIManager(GLFWwindow* window_) noexcept : window(window_)
 
 
     // Load our font
-    io.Fonts->AddFontFromFileTTF("assets/fonts/MartianMonoNerdFontMono-Regular.ttf", 20.0f);
+    io.Fonts->AddFontFromFileTTF("assets/fonts/MartianMonoNerdFontMono-Regular.ttf", 22.0f);
 
     // Setup style
     auto& style              = ImGui::GetStyle();
@@ -28,20 +30,6 @@ UIManager::UIManager(GLFWwindow* window_) noexcept : window(window_)
     style.ItemInnerSpacing.x = 5.f;
     style.IndentSpacing      = 30.f;
     style.ScrollbarSize      = 15.f;
-
-    vertex_shader_source = ReadTextFromFile("shaders/latest_vertex.glsl");
-    if (vertex_shader_source.empty())
-    {
-        vertex_shader_source = ReadTextFromFile("shaders/default/default_vertex.glsl");
-    }
-
-    fragment_shader_source = ReadTextFromFile("shaders/latest_fragment.glsl");
-    if (fragment_shader_source.empty())
-    {
-        fragment_shader_source = ReadTextFromFile("shaders/default/default_fragment.glsl");
-    }
-
-    fragment_shader_source.resize(1024 * 100);
 }
 
 UIManager::~UIManager() noexcept { Shutdown(); }
@@ -58,6 +46,12 @@ void UIManager::RenderFrame() noexcept
     if (!is_ui_visible) { return; }
 
     PrepareFrame();
+
+    auto vertex_shader_source = shader_manager.GetVertexShader().GetCodeConst();
+
+    auto&        fragment_shader        = shader_manager.GetFragmentShader();
+    std::string& fragment_shader_source = fragment_shader.GetCode();
+
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
 
@@ -79,17 +73,11 @@ void UIManager::RenderFrame() noexcept
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Save"))
-            {
-                show_save_popup = true;
-                WriteTextToFile("shaders/latest_fragment.glsl", fragment_shader_source);
-                WriteTextToFile("shaders/latest_vertex.glsl", vertex_shader_source);
-            }
+            if (ImGui::MenuItem("Save")) { show_save_popup = true; }
 
             if (ImGui::MenuItem("Quit", "Ctrl+Q"))
             {
-                WriteTextToFile("shaders/latest_fragment.glsl", fragment_shader_source);
-                WriteTextToFile("shaders/latest_vertex.glsl", vertex_shader_source);
+                shader_manager.SaveFragmentShaderToPath("shaders/latest_fragment.glsl");
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
             }
 
@@ -108,14 +96,6 @@ void UIManager::RenderFrame() noexcept
 
     if (ImGui::BeginTabBar("TabBar"))
     {
-        if (ImGui::BeginTabItem("Vertex Shader"))
-        {
-            ImGui::Text(vertex_shader_source.c_str());
-
-
-            ImGui::EndTabItem();
-        }
-
         if (ImGui::BeginTabItem("Fragment Shader"))
         {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.3f, 0.0f));
@@ -123,12 +103,31 @@ void UIManager::RenderFrame() noexcept
             ImVec2 parent_window_size = ImGui::GetWindowSize();
 
             ImGui::InputTextMultiline(" ",
-                                      fragment_shader_source.data(),
-                                      fragment_shader_source.size(),
+                                      &fragment_shader_source,
                                       ImVec2(-FLT_MIN, parent_window_size.y * 0.90f),
                                       ImGuiInputTextFlags_AllowTabInput);
 
             ImGui::PopStyleColor();
+
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Vertex Shader"))
+        {
+            ImGui::Text(vertex_shader_source.data());
+
+
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Compilation Errors"))
+        {
+
+            if (!fragment_shader.IsGood())
+            {
+                ImGui::TextColored(ImVec4(1, 0, 0, 1),
+                                   fragment_shader.GetCompilationError().data());
+            }
 
             ImGui::EndTabItem();
         }
@@ -145,8 +144,7 @@ void UIManager::RenderFrame() noexcept
     if (show_save_popup) { DrawSavePopup(); }
 
 
-    // Pop the style change to revert to the previous style settings
-    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();  // Pop the style change to revert text colorq
 
     ImGui::End();
 
@@ -158,13 +156,6 @@ void UIManager::RenderFrame() noexcept
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
-std::string_view UIManager::GetFragmentShaderSource() const noexcept
-{
-    return fragment_shader_source;
-}
-
-std::string_view UIManager::GetVertexShaderSource() const noexcept { return vertex_shader_source; }
 
 void UIManager::SetUIVisibility(bool visibility) noexcept { is_ui_visible = visibility; }
 
@@ -179,6 +170,8 @@ void UIManager::Shutdown() noexcept
 
 void UIManager::DrawSavePopup() noexcept
 {
+    auto fragment_shader_source = shader_manager.GetFragmentShader().GetCode();
+
     ImGui::OpenPopup("SavePopup");
     // Always center this window when appearing
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -191,32 +184,33 @@ void UIManager::DrawSavePopup() noexcept
         ImGui::Text("Enter the file name");
         ImGui::Separator();
 
-        static char        buf[256]      = "";
+        static std::string buf;
         static bool        show_error    = false;
         static std::string error_message = "";
 
-        if (ImGui::InputText("##save", buf, IM_ARRAYSIZE(buf)))
+        if (ImGui::InputText("##save", &buf))
         {
             show_error = false;  // Reset error state when user modifies input
         }
 
         if (ImGui::Button("OK", ImVec2(200, 0)))
         {
-            if (strlen(buf) == 0)
+            if (buf.empty())
             {
                 show_error    = true;
                 error_message = "Filename cannot be empty";
             }
             else
             {
-                std::string out_path = GetApplicationPath() + "/shaders/" + std::string(buf) + "/"
-                                     + std::string(buf) + "_fragment.glsl";
+                std::string out_path =
+                    "/shaders/" + std::string(buf) + "/" + std::string(buf) + "_fragment.glsl";
                 LOG_INFO("Saving to: {}", out_path);
 
-                auto res = WriteTextToFile(out_path, fragment_shader_source);
+
+                auto res = shader_manager.SaveFragmentShaderToPath(out_path);
                 if (res)
                 {
-                    memset(buf, 0, sizeof(buf));  // Cleaning buffer
+                    buf.clear();
 
                     show_error = false;
 
