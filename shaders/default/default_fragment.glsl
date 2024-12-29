@@ -14,10 +14,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
     vec2 uv = fragCoord.xy / iResolution.xy;
 
-    // Time varying pixel color
-    vec3 col = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4));
+    vec3 col = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0, 2, 4)); // Simple color gradient
 
-    // Output to screen
     fragColor = vec4(col, 1.0);
 }
 
