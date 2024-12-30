@@ -1,5 +1,6 @@
 #include "PCH.h"
 
+#include "Utils.h"
 #include "UIManager.h"
 #include "ShaderManager.h"
 
@@ -13,7 +14,7 @@ void SetupAsyncLogger()
 
     // Create file sink
     auto file_logger = std::make_shared<spdlog::sinks::basic_file_sink_mt>(
-        "logs/latest.log",
+        GetApplicationPath() + "/logs/latest.log",
         true);  // `true` for truncating the file
     file_logger->set_pattern("[%Y.%m.%d %H:%M:%S.%e][%^%l%$][%s:%#:%v]");
 
@@ -106,9 +107,14 @@ void HandleInput(GLFWwindow* window, ShaderManager& shader_manager)
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+    FileUtils::application_path = argv[0];
+
     SetupAsyncLogger();  // Setup the async logger
+
+    LOG_INFO("application_path: {}", FileUtils::application_path);
+
 
     glfwSetErrorCallback(
         [](int error, const char* description)
@@ -304,6 +310,7 @@ int main()
                     / sorted_frame_times[static_cast<size_t>(sorted_frame_times.size() * 0.999f)];
 
                 // Log the FPS metrics
+                LOG_INFO("Delta time: {}", delta_time);
                 LOG_INFO("Average FPS: {}", avg_fps);
                 LOG_INFO("1% Low FPS: {}", one_percent_low_fps);
                 LOG_INFO("0.1% Low FPS: {}", point_one_percent_low_fps);

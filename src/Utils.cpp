@@ -1,5 +1,7 @@
 #include "Utils.h"
 
+std::string_view FileUtils::application_path = {};
+
 std::string ReadTextFromFile(std::string_view file_path_) noexcept
 {
     std::string text;
@@ -153,7 +155,9 @@ bool WriteTextToFile(std::string_view file_path_, std::string_view text_) noexce
 
 std::string GetApplicationPath()
 {
-    std::string path = std::filesystem::current_path().string();
+    std::filesystem::path exe_path =
+        std::filesystem::canonical(FileUtils::application_path).parent_path();
+    std::string path = exe_path.string();
     std::replace(path.begin(), path.end(), '\\', '/');
     return path;
 }

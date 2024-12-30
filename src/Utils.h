@@ -2,6 +2,11 @@
 
 #include "PCH.h"
 
+struct FileUtils {
+    static std::string_view application_path; /**< Path to the application. DO NOT USE IT. Use
+                                                 GetApplicationPath() instead. */
+};
+
 /**
  * @brief Function which read text from a file
  *
