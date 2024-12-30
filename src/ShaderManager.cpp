@@ -95,6 +95,5 @@ ShaderProgram& ShaderManager::GetShaderProgram() noexcept { return shader_progra
 
 bool ShaderManager::SaveFragmentShaderToPath(std::string_view fragment_shader_path_)
 {
-    LOG_INFO("CODE : {}", fragment_shader.GetCode());
     return WriteTextToFile(fragment_shader_path_, fragment_shader.GetCode());
 }
