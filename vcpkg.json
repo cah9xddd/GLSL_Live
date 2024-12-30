@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "builtin-baseline": "dbdc9b3b8253dc9ba82df547c431eb52e5e3dafc",
   "dependencies": [
     "glad",
