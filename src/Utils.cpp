@@ -17,7 +17,7 @@ std::string ReadTextFromFile(std::string_view file_path_) noexcept
     // Creating an input file stream
     std::ifstream in_file(full_path.data(), std::ios::in | std::ios::binary);
 
-    // Check if the file is opened
+    // Check if the file is opened or exists
     if (!in_file)
     {
         LOG_ERROR("Failed to open file: {}", full_path);

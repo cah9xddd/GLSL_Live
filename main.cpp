@@ -69,7 +69,7 @@ void MouseCursorCallback(GLFWwindow* window, double xpos, double ypos)
     cursor_y = ypos;
 }
 
-void HandleInput(GLFWwindow* window, ShaderManager& shader_manager)
+void HandleInput(GLFWwindow* window, ShaderManager& shader_manager, UIManager& ui_manager)
 {
 
     static bool space_key_pressed = false;
@@ -98,6 +98,11 @@ void HandleInput(GLFWwindow* window, ShaderManager& shader_manager)
             UIManager::SetUIVisibility(!UIManager::GetUIVisibility());  // Toggle the flag
             h_key_pressed = true;                                       // Mark as pressed
         }
+    }
+    else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS
+             && glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        ui_manager.ShowSavePopup();
     }
 
     else
@@ -241,7 +246,7 @@ int main(int argc, char* argv[])
 
             last_frame = current_time;  // Update previous_time for next frame
 
-            HandleInput(window, shader_manager);
+            HandleInput(window, shader_manager, ui_manager);
 
             // Rendering commands
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

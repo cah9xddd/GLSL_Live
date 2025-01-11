@@ -161,6 +161,8 @@ void UIManager::SetUIVisibility(bool visibility) noexcept { is_ui_visible = visi
 
 bool UIManager::GetUIVisibility() noexcept { return is_ui_visible; }
 
+void UIManager::ShowSavePopup() noexcept { show_save_popup = true; }
+
 void UIManager::Shutdown() noexcept
 {
     ImGui_ImplOpenGL3_Shutdown();

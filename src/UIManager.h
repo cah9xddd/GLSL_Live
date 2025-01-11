@@ -25,6 +25,8 @@ struct UIManager {
 
     static bool GetUIVisibility() noexcept;
 
+    void ShowSavePopup() noexcept;
+
 private:
     /**
      * @brief Cleans up ImGui resources.
