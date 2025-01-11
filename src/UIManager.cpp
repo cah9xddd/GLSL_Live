@@ -73,7 +73,7 @@ void UIManager::RenderFrame() noexcept
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::MenuItem("Save")) { show_save_popup = true; }
+            if (ImGui::MenuItem("Save", "Ctrl+S")) { show_save_popup = true; }
 
             if (ImGui::MenuItem("Quit", "Ctrl+Q"))
             {
