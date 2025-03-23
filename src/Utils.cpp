@@ -161,3 +161,42 @@ std::string GetApplicationPath()
     std::replace(path.begin(), path.end(), '\\', '/');
     return path;
 }
+
+std::string LoadTextFromFile(std::string_view file_path_) noexcept
+{
+    auto full_path = GetApplicationPath() + "/" + std::string(file_path_);
+
+    if (full_path.empty())
+    {
+        LOG_ERROR("File path is empty");
+        return "";
+    }
+
+    if (!std::filesystem::exists(full_path))
+    {
+        LOG_ERROR("File does not exist: {}", full_path);
+        return "";
+    }
+
+    // Creating an input file stream
+    std::ifstream in_file(full_path.data(), std::ios::in | std::ios::binary);
+
+    // Check if the file is opened
+    if (!in_file)
+    {
+        LOG_ERROR("Failed to open file: {}", full_path);
+        return "";
+    }
+
+    // Read file content directly into a string
+    std::string text((std::istreambuf_iterator<char>(in_file)), std::istreambuf_iterator<char>());
+
+    // Check if the reading was successful
+    if (!in_file.good() && !in_file.eof())
+    {
+        LOG_ERROR("Error reading the file: {}", full_path);
+        return "";
+    }
+
+    return text;
+}

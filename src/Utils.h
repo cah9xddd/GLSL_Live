@@ -40,6 +40,15 @@ std::string CreateTemporaryCopyOfFile(std::string_view file_path_) noexcept;
 bool WriteTextToFile(std::string_view file_path_, std::string_view text_) noexcept;
 
 /**
+ * @brief Function which loads text from a file
+ *
+ * @param file_path_ Path to the file
+ *
+ * @return Text content of the file or an empty string in case of an error
+ */
+std::string LoadTextFromFile(std::string_view file_path_) noexcept;
+
+/**
  * @brief Function which returns the path to the application
  *
  * @return Path to the application
