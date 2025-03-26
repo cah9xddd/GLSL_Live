@@ -43,7 +43,7 @@ void UIManager::PrepareFrame() const noexcept
 
 void UIManager::RenderFrame() noexcept
 {
-    if (!is_ui_visible) { return; }
+
 
     PrepareFrame();
 
@@ -86,65 +86,86 @@ void UIManager::RenderFrame() noexcept
 
         if (ImGui::BeginMenu("View"))
         {
-            if (ImGui::MenuItem("Hide/Show UI", "Ctrl+H")) { is_ui_visible = !is_ui_visible; }
+            if (ImGui::MenuItem("Show UI", "Ctrl+H", &is_ui_visible)) {}
             ImGui::EndMenu();
         }
+
 
         ImGui::EndMenuBar();
     }
 
-
-    if (ImGui::BeginTabBar("TabBar"))
+    if (is_ui_visible)
     {
-        if (ImGui::BeginTabItem("Fragment Shader"))
+        if (ImGui::BeginTabBar("TabBar"))
         {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.3f, 0.0f));
-
-            ImVec2 parent_window_size = ImGui::GetWindowSize();
-
-            ImGui::InputTextMultiline(" ",
-                                      &fragment_shader_source,
-                                      ImVec2(-FLT_MIN, parent_window_size.y * 0.90f),
-                                      ImGuiInputTextFlags_AllowTabInput);
-
-            ImGui::PopStyleColor();
-
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem("Vertex Shader"))
-        {
-            ImGui::Text(vertex_shader_source.data());
-
-
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem("Compilation Errors"))
-        {
-
-            if (!fragment_shader.IsGood())
+            if (ImGui::BeginTabItem("Fragment Shader"))
             {
-                ImGui::TextColored(ImVec4(1, 0, 0, 1),
-                                   fragment_shader.GetCompilationError().data());
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.3f, 0.0f));
+
+                ImVec2 parent_window_size = ImGui::GetWindowSize();
+
+                ImGui::InputTextMultiline(" ",
+                                          &fragment_shader_source,
+                                          ImVec2(-FLT_MIN, parent_window_size.y * 0.90f),
+                                          ImGuiInputTextFlags_AllowTabInput);
+
+                ImGui::PopStyleColor();
+
+                ImGui::EndTabItem();
             }
 
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Settings"))
-        {
-            if (ImGui::ColorEdit3("Text Color", (float*)&text_color)) {}
+            if (ImGui::BeginTabItem("Vertex Shader"))
+            {
+                ImGui::Text(vertex_shader_source.data());
 
-            ImGui::EndTabItem();
-        }
 
-        ImGui::EndTabBar();
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Compilation Errors"))
+            {
+
+                if (!fragment_shader.IsGood())
+                {
+                    ImGui::TextColored(ImVec4(1, 0, 0, 1),
+                                       fragment_shader.GetCompilationError().data());
+                }
+
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Editor Settings"))
+            {
+                if (ImGui::ColorEdit3("Text Color", (float*)&text_color)) {}
+
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Saved Shaders"))
+            {
+                auto files = GetFilesInDirectory("shaders/saved", ".glsl");
+
+                for (const auto& file : files)
+                {  // here we wanna on click load the shader
+                    if (ImGui::Button(file.c_str()))
+                    {
+                        auto path = "shaders/saved/" + file + ".glsl";
+                        shader_manager.LoadFragmentShaderFromPath(path);
+                    }
+                }
+
+                ImGui::EndTabItem();
+            }
+
+
+            ImGui::EndTabBar();
+        }
     }
 
     if (show_save_popup) { DrawSavePopup(); }
 
 
-    ImGui::PopStyleColor();  // Pop the style change to revert text colorq
+    ImGui::PopStyleColor();  // Pop the style change to revert text colorq}
+
 
     ImGui::End();
 
@@ -204,8 +225,7 @@ void UIManager::DrawSavePopup() noexcept
             }
             else
             {
-                std::string out_path =
-                    "/shaders/" + std::string(buf) + "/" + std::string(buf) + "_fragment.glsl";
+                std::string out_path = "/shaders/saved/" + std::string(buf) + "_fragment.glsl";
                 LOG_INFO("Saving to: {}", out_path);
 
 
