@@ -153,6 +153,30 @@ bool WriteTextToFile(std::string_view file_path_, std::string_view text_) noexce
     return true;
 }
 
+std::vector<std::string> GetFilesInDirectory(std::string_view root_directory_path_,
+                                             std::string_view extension_)
+{
+    std::vector<std::string> result;
+    auto full_dir_path = GetApplicationPath() + "/" + std::string(root_directory_path_);
+
+    if (!std::filesystem::exists(full_dir_path))
+    {
+        LOG_ERROR("Directory does not exist: {}", full_dir_path);
+    }
+    else
+    {
+        for (auto& p : std::filesystem::directory_iterator(full_dir_path))
+        {
+            if (p.is_regular_file() && p.path().extension() == extension_)
+            {
+                result.push_back(p.path().filename().stem().string());
+            }
+        }
+    }
+
+    return result;
+}
+
 std::string GetApplicationPath()
 {
     std::filesystem::path exe_path =
@@ -160,4 +184,43 @@ std::string GetApplicationPath()
     std::string path = exe_path.string();
     std::replace(path.begin(), path.end(), '\\', '/');
     return path;
+}
+
+std::string LoadTextFromFile(std::string_view file_path_) noexcept
+{
+    auto full_path = GetApplicationPath() + "/" + std::string(file_path_);
+
+    if (full_path.empty())
+    {
+        LOG_ERROR("File path is empty");
+        return "";
+    }
+
+    if (!std::filesystem::exists(full_path))
+    {
+        LOG_ERROR("File does not exist: {}", full_path);
+        return "";
+    }
+
+    // Creating an input file stream
+    std::ifstream in_file(full_path.data(), std::ios::in | std::ios::binary);
+
+    // Check if the file is opened
+    if (!in_file)
+    {
+        LOG_ERROR("Failed to open file: {}", full_path);
+        return "";
+    }
+
+    // Read file content directly into a string
+    std::string text((std::istreambuf_iterator<char>(in_file)), std::istreambuf_iterator<char>());
+
+    // Check if the reading was successful
+    if (!in_file.good() && !in_file.eof())
+    {
+        LOG_ERROR("Error reading the file: {}", full_path);
+        return "";
+    }
+
+    return text;
 }

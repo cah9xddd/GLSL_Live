@@ -97,3 +97,21 @@ bool ShaderManager::SaveFragmentShaderToPath(std::string_view fragment_shader_pa
 {
     return WriteTextToFile(fragment_shader_path_, fragment_shader.GetCode());
 }
+
+bool ShaderManager::LoadFragmentShaderFromPath(std::string_view fragment_shader_path_)
+{
+    auto fragment_shader_source = ReadTextFromFile(fragment_shader_path_);
+
+    if (!fragment_shader_source.empty())
+    {
+        fragment_shader.CompileFromText(fragment_shader_source, ShaderType::FRAGMENT);
+
+        if (fragment_shader.IsGood())
+        {
+            shader_program = ShaderProgram(vertex_shader, fragment_shader);
+            return true;
+        }
+    }
+
+    return false;
+}
