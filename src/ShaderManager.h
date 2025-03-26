@@ -15,8 +15,8 @@ struct ShaderManager {
 
 
     bool SaveFragmentShaderToPath(std::string_view fragment_shader_path_);
+    bool LoadFragmentShaderFromPath(std::string_view fragment_shader_path_);
 
-private:
 private:
 
     Shader vertex_shader;
