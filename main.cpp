@@ -65,8 +65,8 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 
 void MouseCursorCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    cursor_x = xpos;
-    cursor_y = ypos;
+    cursor_x = static_cast<float>(xpos);
+    cursor_y = static_cast<float>(ypos);
 }
 
 void HandleInput(GLFWwindow* window, ShaderManager& shader_manager, UIManager& ui_manager)
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 
         while (!glfwWindowShouldClose(window))  // Render loop
         {
-            current_time = glfwGetTime();  // Get current time
+            current_time = static_cast<float>(glfwGetTime());  // Get current time
 
             delta_time =
                 current_time - last_frame;  // Calculate delta time (time elapsed since last frame)
@@ -279,6 +279,7 @@ int main(int argc, char* argv[])
 
                     // here we wanna save the current frame and if on pause we just show latest
                     // frame
+                    // 24.03.2025 i think we dont want
                 }
             }
 
