@@ -14,14 +14,25 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Install dependencies using vcpkg
+    # Step 2: Cache vcpkg dependencies
+    - name: Cache vcpkg
+      uses: actions/cache@v3
+      with:
+        path: C:/vcpkg
+        key: vcpkg-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
+        restore-keys: |
+          vcpkg-${{ runner.os }}-
+
+
+    # Step 3: Install dependencies (only if not cached)
     - name: Install Dependencies
       run: |
         choco install cmake ninja visualstudio2019buildtools
-        # Install other dependencies via vcpkg
-        git clone https://github.com/microsoft/vcpkg.git
-        .\vcpkg\bootstrap-vcpkg.bat
-        echo "${{ github.workspace }}\vcpkg" >> $env:GITHUB_PATH
+        if (!(Test-Path "C:/vcpkg")) {
+          git clone https://github.com/microsoft/vcpkg.git C:/vcpkg
+          C:/vcpkg/bootstrap-vcpkg.bat
+        }
+        echo "C:/vcpkg" >> $env:GITHUB_PATH
 
     # Step 4: Generate build files
     - name: Configure
