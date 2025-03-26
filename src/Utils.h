@@ -49,6 +49,17 @@ bool WriteTextToFile(std::string_view file_path_, std::string_view text_) noexce
 std::string LoadTextFromFile(std::string_view file_path_) noexcept;
 
 /**
+ * @brief Function which returns the files in the directory with the specified extension
+ *
+ * @param directory_path_ Path to the directory
+ * @param extension_ Extension of the files
+ *
+ * @return Vector of file names with the specified extension
+ */
+std::vector<std::string> GetFilesInDirectory(std::string_view root_directory_path_,
+                                             std::string_view extension_);
+
+/**
  * @brief Function which returns the path to the application
  *
  * @return Path to the application
